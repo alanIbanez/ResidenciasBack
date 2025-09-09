@@ -1,15 +1,16 @@
-﻿using Domain.Entities.Exit;
+﻿using BackendNotificaciones.Domain.Entities.Exit;
+using Domain.Entities.Exit;
 
 namespace Domain.Interfaces
 {
     public interface IExitStatusRepository
     {
-        Task<ExitStatus> GetByIdAsync(int id);
+        Task<ExitStatus> GetByIdAsync(Guid id);
         Task<ExitStatus> GetByNameAsync(string name);
         Task<IEnumerable<ExitStatus>> GetAllAsync();
         Task AddAsync(ExitStatus exitStatus);
         Task UpdateAsync(ExitStatus exitStatus);
-        Task DeleteAsync(int id);
-        Task<bool> ExitStatusExistsAsync(string name);
+        Task DeleteAsync(ExitStatus exitStatus);
+        Task SaveChangesAsync();
     }
 }

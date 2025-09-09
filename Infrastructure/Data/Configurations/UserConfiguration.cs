@@ -8,7 +8,7 @@ namespace Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
-            builder.ToTable("Users");
+            builder.ToTable("users");
 
             builder.HasKey(u => u.Id);
 
@@ -16,36 +16,52 @@ namespace Infrastructure.Data.Configurations
                 .IsRequired()
                 .HasMaxLength(50);
 
+            builder.Property(u => u.Email)
+                .IsRequired()
+                .HasMaxLength(100);
+
             builder.Property(u => u.PasswordHash)
                 .IsRequired()
-                .HasMaxLength(255);
+                .HasColumnType("bytea");
 
-            builder.Property(u => u.NotificationToken)
-                .HasMaxLength(255);
+            builder.Property(u => u.PasswordSalt)
+                .IsRequired()
+                .HasColumnType("bytea");
 
-            builder.Property(u => u.NavigationToken)
-                .HasMaxLength(255);
-
-            builder.Property(u => u.Active)
+            builder.Property(u => u.IsActive)
+                .IsRequired()
                 .HasDefaultValue(true);
 
             builder.Property(u => u.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                .IsRequired()
+                .HasColumnType("timestamp with time zone");
 
-            // Relaciones
+            builder.Property(u => u.UpdatedAt)
+                .IsRequired()
+                .HasColumnType("timestamp with time zone");
+
+            // Relationships
             builder.HasOne(u => u.Person)
-                .WithOne(p => p.User)
+                .WithOne()
                 .HasForeignKey<User>(u => u.PersonId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(u => u.Role)
-                .WithMany(r => r.Users)
+                .WithMany()
                 .HasForeignKey(u => u.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Índices
-            builder.HasIndex(u => u.Username).IsUnique();
-            builder.HasIndex(u => u.NavigationToken).IsUnique().HasFilter("[NavigationToken] IS NOT NULL");
+            builder.HasMany(u => u.Notifications)
+                .WithOne(n => n.User)
+                .HasForeignKey(n => n.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Indexes
+            builder.HasIndex(u => u.Username)
+                .IsUnique();
+
+            builder.HasIndex(u => u.Email)
+                .IsUnique();
         }
     }
 }
